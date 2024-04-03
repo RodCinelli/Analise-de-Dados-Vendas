@@ -39,13 +39,18 @@ def plot_vendas_diarias():
     plot1.plot(x_smooth, y_smooth, linestyle='-', color='royalblue', linewidth=2, label='Vendas')
     plot1.scatter(df['Dia'], df['Vendas'], color='darkorange', label='Dados Diários')
 
-    # Marcando o dia com venda máxima e mínima
-    plot1.scatter(df['Dia'][df['Vendas'].idxmax()], df['Vendas'].max(), color='red', s=100, edgecolor='black', label='Venda Máxima')
-    plot1.scatter(df['Dia'][df['Vendas'].idxmin()], df['Vendas'].min(), color='green', s=100, edgecolor='black', label='Venda Mínima')
-
-    # Adicionando anotações
+    # Marcando o dia com venda máxima
+    plot1.scatter(df['Dia'][df['Vendas'].idxmax()], df['Vendas'].max(), color='green', s=100, edgecolor='black', label='Venda Máxima')
+    # Adicionando anotação para a venda máxima
     plot1.annotate('Máxima', xy=(df['Dia'][df['Vendas'].idxmax()], df['Vendas'].max()), xytext=(df['Dia'][df['Vendas'].idxmax()]+1, df['Vendas'].max()), arrowprops=dict(facecolor='black', shrink=0.05))
-    plot1.annotate('Mínima', xy=(df['Dia'][df['Vendas'].idxmin()], df['Vendas'].min()), xytext=(df['Dia'][df['Vendas'].idxmin()]+1, df['Vendas'].min()), arrowprops=dict(facecolor='black', shrink=0.05))
+
+    # Marcando dias específicos com vendas mínimas
+    dias_minimos = [5, 15, 29]  # Dias com vendas mínimas para marcar
+    for dia in dias_minimos:
+        venda_minima = df['Vendas'][dia - 1]  # -1 porque os índices do DataFrame começam em 0
+        plot1.scatter(dia, venda_minima, color='red', s=100, edgecolor='black', label='Venda Mínima' if dia == dias_minimos[0] else "")
+        # Ajustando a posição da anotação para a direita
+        plot1.annotate('Mínima', xy=(dia, venda_minima), xytext=(dia + 0.5, venda_minima + 10), arrowprops=dict(facecolor='black', shrink=0.05))
 
     plot1.set_title('Vendas Diárias durante um Mês', fontsize=16)
     plot1.set_xlabel('Dia', fontsize=14, labelpad=15)
