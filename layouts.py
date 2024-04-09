@@ -62,8 +62,14 @@ for dia in dias_min_vendas:
 # Configuração de layout para permitir destaque ao clicar nos itens da legenda
 fig_vendas_diarias.update_layout(
     title='Vendas Diárias durante um Mês',
-    xaxis_title='Dia',
-    yaxis_title='Vendas',
+    xaxis=dict(
+        title='Dia',
+        title_standoff=30  # Aumenta o espaçamento entre o título do eixo x e os ticks
+    ),
+    yaxis=dict(
+        title='Vendas',
+        title_standoff=30  # Aumenta o espaçamento entre o título do eixo y e os ticks
+    ),
     legend=dict(
         y=0.5,
         font=dict(size=12),
@@ -74,8 +80,36 @@ fig_vendas_diarias.update_layout(
 # Gráfico de vendas por categoria
 categorias = ['Eletrônicos', 'Vestuário', 'Alimentos', 'Farmácia']
 vendas_por_categoria = [500, 300, 400, 200]
-fig_vendas_categoria = go.Figure(data=[go.Pie(labels=categorias, values=vendas_por_categoria, hole=.3)])
-fig_vendas_categoria.update_layout(title='Vendas por Categoria')
+
+fig_vendas_categoria = go.Figure(data=[go.Pie(
+    labels=categorias,
+    values=vendas_por_categoria,
+    hole=.3,  # Buraco no centro do gráfico de pizza
+    hoverinfo='label+percent',  # Mostra a etiqueta e a porcentagem ao passar o mouse
+    textinfo='value',  # Mostra o valor de cada categoria dentro dos segmentos
+    pull=[0.1, 0, 0, 0],  # Puxa o primeiro segmento para fora
+    marker=dict(  # Cores personalizadas para cada segmento
+        colors=['#007bff', '#28a745', '#ffc107', '#dc3545'],
+        line=dict(color='#ffffff', width=2)  # Linhas brancas entre os segmentos
+    )
+)])
+
+# Adiciona uma legenda mais descritiva e melhora a interatividade
+fig_vendas_categoria.update_layout(
+    title='Vendas por Categoria',
+    legend=dict(
+        bordercolor='LightGrey',  # Cor da borda da legenda
+        borderwidth=1,  # Largura da borda da legenda
+        font=dict(size=12),  # Tamanho da fonte da legenda
+        orientation='v',  # Orientação vertical da legenda
+        x=0.7,  # Posição x da legenda (1 é o lado extremo direito do gráfico)
+        xanchor='left',  # Ancora a legenda pelo lado esquerdo
+        y=0.5,  # Posição y da legenda (0.5 é o centro vertical do gráfico)
+        yanchor='middle'  # Ancora a legenda pelo centro vertical
+    ),
+    hovermode='closest',
+    height=500  # Aumentar a altura do gráfico
+)
 
 def create_layout():
     return html.Div([
@@ -83,3 +117,4 @@ def create_layout():
         dcc.Graph(figure=fig_vendas_diarias, id='grafico-vendas-diarias'),
         dcc.Graph(figure=fig_vendas_categoria, id='grafico-vendas-categoria')
     ], className='container')
+
