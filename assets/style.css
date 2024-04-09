@@ -1,0 +1,11 @@
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.titulo-analise-vendas {
+    text-align: center;
+}
+
+.container {
+    padding: 20px;
+}
