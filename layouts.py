@@ -1,4 +1,3 @@
-# layouts.py
 from dash import dcc, html
 import plotly.graph_objs as go
 import pandas as pd
@@ -22,9 +21,10 @@ df = pd.DataFrame(dados)
 
 # Identificando a venda máxima e mínima
 idx_max_vendas = df['Vendas'].idxmax()
-valor_min_vendas = df['Vendas'].min()
+valor_max_vendas = df['Vendas'][idx_max_vendas]
+dia_max_vendas = df['Dia'][idx_max_vendas]
 
-# Encontre todos os dias com venda mínima
+valor_min_vendas = df['Vendas'].min()
 dias_min_vendas = df[df['Vendas'] == valor_min_vendas]['Dia'].tolist()
 
 # Gráfico de vendas diárias
@@ -34,17 +34,42 @@ y_smooth = spl(x_smooth)
 
 fig_vendas_diarias = go.Figure()
 fig_vendas_diarias.add_trace(go.Scatter(x=x_smooth, y=y_smooth, mode='lines+markers', name='Vendas', line=dict(color='royalblue')))
-# Destaque para a venda máxima
-fig_vendas_diarias.add_trace(go.Scatter(x=[df['Dia'][idx_max_vendas]], y=[df['Vendas'][idx_max_vendas]], mode='markers', marker=dict(color='green', size=12), name='Venda Máxima'))
-fig_vendas_diarias.add_annotation(x=df['Dia'][idx_max_vendas], y=df['Vendas'][idx_max_vendas],
-                                text="Venda Máxima", showarrow=True, arrowhead=1, ax=40, ay=-30)
-# Destaque e anotações para todas as vendas mínimas
-for dia in dias_min_vendas:
-    fig_vendas_diarias.add_trace(go.Scatter(x=[dia], y=[valor_min_vendas], mode='markers', marker=dict(color='red', size=12), name='Venda Mínima' if dia == dias_min_vendas[0] else ""))
-    fig_vendas_diarias.add_annotation(x=dia, y=valor_min_vendas,
-                                    text="Venda Mínima", showarrow=True, arrowhead=1, ax=20, ay=30, xanchor="left")
 
-fig_vendas_diarias.update_layout(title='Vendas Diárias durante um Mês', xaxis_title='Dia', yaxis_title='Vendas', legend=dict(y=0.5, font=dict(size=12)))
+# Adicionar destaque para a venda máxima com anotação à direita
+fig_vendas_diarias.add_trace(go.Scatter(
+    x=[dia_max_vendas], y=[valor_max_vendas], mode='markers',
+    marker=dict(color='green', size=12), name=f'Venda Máxima dia {dia_max_vendas}'
+))
+fig_vendas_diarias.add_annotation(
+    x=dia_max_vendas, y=valor_max_vendas,
+    text=f"Dia {dia_max_vendas}", showarrow=True, arrowhead=1, ax=40, ay=0
+)
+
+# Adicionar destaque para as vendas mínimas com anotações à direita
+for dia in dias_min_vendas:
+    venda_minima = df.loc[df['Dia'] == dia, 'Vendas'].values[0]
+    fig_vendas_diarias.add_trace(go.Scatter(
+        x=[dia], y=[venda_minima], mode='markers',
+        marker=dict(color='red', size=12), name=f'Venda Mínima dia {dia}'
+    ))
+    
+    # Mova as anotações para a direita
+    fig_vendas_diarias.add_annotation(
+        x=dia, y=venda_minima,
+        text=f"Dia {dia}", showarrow=True, arrowhead=1, ax=40, ay=0
+    )
+
+# Configuração de layout para permitir destaque ao clicar nos itens da legenda
+fig_vendas_diarias.update_layout(
+    title='Vendas Diárias durante um Mês',
+    xaxis_title='Dia',
+    yaxis_title='Vendas',
+    legend=dict(
+        y=0.5,
+        font=dict(size=12),
+        itemsizing='constant'
+    )
+)
 
 # Gráfico de vendas por categoria
 categorias = ['Eletrônicos', 'Vestuário', 'Alimentos', 'Farmácia']
